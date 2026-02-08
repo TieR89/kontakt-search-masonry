@@ -1,14 +1,14 @@
 <template>
-  <div
-    class="group cursor-pointer rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full"
-    @click="$emit('click')"
-  >
-    <div class="relative w-full h-full overflow-hidden">
+  <div class="group cursor-pointer h-full" @click="$emit('click')">
+    <div
+      class="relative w-full h-full rounded-2xl overflow-hidden shadow-sm transition-shadow duration-300 group-hover:shadow-xl"
+      style="backface-visibility: hidden; -webkit-backface-visibility: hidden"
+    >
       <img
         v-if="item.image && !imgFailed"
         :src="item.image"
         :alt="item.title"
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
         @error="onImgError"
       />
@@ -30,6 +30,11 @@
             transparent
           );
         "
+      />
+
+      <!-- Рамка при наведении -->
+      <div
+        class="absolute inset-0 rounded-2xl border-2 border-transparent transition-colors duration-300 group-hover:border-white/30"
       />
 
       <!-- Бейдж категории -->

@@ -6,12 +6,19 @@ import type {
 import type { Ref } from 'vue';
 
 function norm(str: string): string {
-  return str
-    .toLowerCase()
-    .replace(/ё/g, 'е')
-    .replace(/[\n\r\t]+/g, ' ')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
+  return (
+    str
+      .toLowerCase()
+      .replace(/ё/g, 'е')
+      .replace(/[\n\r\t]+/g, ' ')
+      // Разделяем склеенные слова: "наконечникгост" → "наконечник гост"
+      .replace(/([а-яa-z])([А-ЯA-Z])/g, '$1 $2')
+      .replace(/([а-яА-Яa-zA-Z])(\d)/g, '$1 $2')
+      .replace(/(\d)([а-яА-Яa-zA-Z])/g, '$1 $2')
+      .toLowerCase()
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+  );
 }
 
 function matchesQuery(text: string, words: string[]): boolean {

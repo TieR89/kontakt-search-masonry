@@ -66,15 +66,26 @@ function emitUpdate(e: Event) {
 }
 
 function handleKeydown(e: KeyboardEvent) {
-  if (e.key === '/' && document.activeElement !== inputRef.value) {
+  // Если фокус уже в поле ввода — не перехватываем
+  const active = document.activeElement;
+  const isInputFocused =
+    active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement;
+
+  if (e.key === '/' && !isInputFocused) {
     e.preventDefault();
     inputRef.value?.focus();
   }
-  if (e.key === 'Escape') {
+
+  if (e.key === 'Escape' && active === inputRef.value) {
     inputRef.value?.blur();
   }
 }
 
-onMounted(() => window.addEventListener('keydown', handleKeydown));
-onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown);
+});
 </script>

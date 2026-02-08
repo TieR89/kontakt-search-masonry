@@ -85,7 +85,23 @@ defineProps<{
   item: CatalogItem;
 }>();
 
-defineEmits<{
-  close: [];
-}>();
+const emit = defineEmits<{
+  close: []
+}>()
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    emit('close')
+  }
+}
+
+onMounted(() => {
+  document.body.style.overflow = 'hidden'
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  document.body.style.overflow = ''
+  window.removeEventListener('keydown', onKeydown)
+})
 </script>

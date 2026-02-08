@@ -1,14 +1,17 @@
 <template>
   <div
-    class="group cursor-pointer rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full"
+    class="group cursor-pointer h-full"
     @click="$emit('click')"
   >
-    <div class="relative w-full h-full overflow-hidden">
+    <div
+      class="relative w-full h-full rounded-2xl overflow-hidden shadow-sm transition-shadow duration-300 group-hover:shadow-xl"
+      style="backface-visibility: hidden; -webkit-backface-visibility: hidden;"
+    >
       <img
         v-if="category.image && !imgFailed"
         :src="category.image"
         :alt="category.title"
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
         @error="onImgError"
       />
@@ -24,6 +27,11 @@
       <div
         class="absolute inset-0"
         style="background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2) 50%, transparent)"
+      />
+
+      <!-- Рамка при наведении -->
+      <div
+        class="absolute inset-0 rounded-2xl border-2 border-transparent transition-colors duration-300 group-hover:border-white/30"
       />
 
       <!-- Текст -->
@@ -59,20 +67,20 @@
 </template>
 
 <script setup lang="ts">
-import type { CatalogCategory } from '~~/shared/types/catalog'
+import type { CatalogCategory } from '~~/shared/types/catalog';
 
 const props = defineProps<{
-  category: CatalogCategory
-}>()
+  category: CatalogCategory;
+}>();
 
 defineEmits<{
-  click: []
-}>()
+  click: [];
+}>();
 
-const imgFailed = ref(false)
+const imgFailed = ref(false);
 
 function onImgError() {
-  imgFailed.value = true
+  imgFailed.value = true;
 }
 
 const gradients = [
@@ -80,30 +88,30 @@ const gradients = [
   'background: linear-gradient(135deg, #10b981, #14b8a6)',
   'background: linear-gradient(135deg, #f97316, #ef4444)',
   'background: linear-gradient(135deg, #ec4899, #f43f5e)',
-  'background: linear-gradient(135deg, #6366f1, #3b82f6)'
-]
+  'background: linear-gradient(135deg, #6366f1, #3b82f6)',
+];
 
 const gradientClasses = [
   'bg-gradient-to-br from-blue-500 to-purple-600',
   'bg-gradient-to-br from-emerald-500 to-teal-600',
   'bg-gradient-to-br from-orange-500 to-red-600',
   'bg-gradient-to-br from-pink-500 to-rose-600',
-  'bg-gradient-to-br from-indigo-500 to-blue-600'
-]
+  'bg-gradient-to-br from-indigo-500 to-blue-600',
+];
 
 const gradientClass = computed(() => {
   const idx =
     typeof props.category.id === 'number'
       ? props.category.id
-      : String(props.category.id).length
-  return gradientClasses[idx % gradientClasses.length]
-})
+      : String(props.category.id).length;
+  return gradientClasses[idx % gradientClasses.length];
+});
 
 function pluralize(n: number): string {
-  const mod = n % 10
-  const mod100 = n % 100
-  if (mod === 1 && mod100 !== 11) return 'позиция'
-  if (mod >= 2 && mod <= 4 && (mod100 < 10 || mod100 >= 20)) return 'позиции'
-  return 'позиций'
+  const mod = n % 10;
+  const mod100 = n % 100;
+  if (mod === 1 && mod100 !== 11) return 'позиция';
+  if (mod >= 2 && mod <= 4 && (mod100 < 10 || mod100 >= 20)) return 'позиции';
+  return 'позиций';
 }
 </script>

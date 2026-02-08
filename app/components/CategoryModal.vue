@@ -117,12 +117,25 @@ defineProps<{
   category: CatalogCategory;
 }>();
 
-defineEmits<{
-  close: [];
-  'open-item': [item: CatalogItem];
-}>();
-
 // Блокировка скролла
-onMounted(() => (document.body.style.overflow = 'hidden'));
-onUnmounted(() => (document.body.style.overflow = ''));
+const emit = defineEmits<{
+  close: []
+  'open-item': [item: CatalogItem]
+}>()
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    emit('close')
+  }
+}
+
+onMounted(() => {
+  document.body.style.overflow = 'hidden'
+  window.addEventListener('keydown', onKeydown)
+})
+
+onUnmounted(() => {
+  document.body.style.overflow = ''
+  window.removeEventListener('keydown', onKeydown)
+})
 </script>
