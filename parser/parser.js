@@ -1,11 +1,11 @@
 /**
  * Парсер сайта https://9833018.ru/
- * 
+ *
  * Использование:
  *   1. npm install axios cheerio
  *   2. node parser.js
  *   3. Результат сохраняется в catalog-data.json
- * 
+ *
  * Парсер собирает:
  *   - Категории каталога (название, изображение, ссылка)
  *   - Товары внутри каждой категории (название, описание, изображение, ссылка)
@@ -20,14 +20,16 @@ const BASE_URL = 'https://9833018.ru';
 const CATALOG_URL = `${BASE_URL}/catalog/`;
 
 // Задержка между запросами чтобы не нагружать сервер
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function fetchPage(url) {
   try {
     const response = await axios.get(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
       },
       timeout: 15000,
@@ -70,16 +72,29 @@ async function parseCategories() {
 
   // Если не нашли по стандартным селекторам, ищем все ссылки на разделы каталога
   if (items.length === 0) {
-    console.log('Стандартные селекторы не сработали, ищем ссылки на каталог...');
+    console.log(
+      'Стандартные селекторы не сработали, ищем ссылки на каталог...',
+    );
     $('a').each((i, el) => {
       const href = $(el).attr('href') || '';
       const text = $(el).text().trim();
-      if (href.includes('/catalog/') && href !== '/catalog/' && text.length > 2) {
-        const img = $(el).find('img').attr('src') || $(el).closest('.item, .card, .section').find('img').attr('src') || '';
+      if (
+        href.includes('/catalog/') &&
+        href !== '/catalog/' &&
+        text.length > 2
+      ) {
+        const img =
+          $(el).find('img').attr('src') ||
+          $(el).closest('.item, .card, .section').find('img').attr('src') ||
+          '';
         categories.push({
           id: i + 1,
           title: text.substring(0, 100),
-          image: img ? (img.startsWith('http') ? img : `${BASE_URL}${img}`) : '',
+          image: img
+            ? img.startsWith('http')
+              ? img
+              : `${BASE_URL}${img}`
+            : '',
           url: href.startsWith('http') ? href : `${BASE_URL}${href}`,
           description: '',
           items: [],
@@ -91,14 +106,19 @@ async function parseCategories() {
       const $el = $(el);
       const link = $el.find('a').first().attr('href') || $el.attr('href') || '';
       const title = $el.find('a').first().text().trim() || $el.text().trim();
-      const img = $el.find('img').attr('src') || $el.find('img').attr('data-src') || '';
+      const img =
+        $el.find('img').attr('src') || $el.find('img').attr('data-src') || '';
       const desc = $el.find('.description, .text, p').first().text().trim();
 
       if (title && link) {
         categories.push({
           id: i + 1,
           title: title.substring(0, 100),
-          image: img ? (img.startsWith('http') ? img : `${BASE_URL}${img}`) : '',
+          image: img
+            ? img.startsWith('http')
+              ? img
+              : `${BASE_URL}${img}`
+            : '',
           url: link.startsWith('http') ? link : `${BASE_URL}${link}`,
           description: desc.substring(0, 300),
           items: [],
@@ -151,12 +171,20 @@ async function parseCategoryItems(category) {
     $('a').each((i, el) => {
       const href = $(el).attr('href') || '';
       const text = $(el).text().trim();
-      if (href.includes(category.url.replace(BASE_URL, '')) && text.length > 2 && text.length < 150) {
+      if (
+        href.includes(category.url.replace(BASE_URL, '')) &&
+        text.length > 2 &&
+        text.length < 150
+      ) {
         const img = $(el).find('img').attr('src') || '';
         items.push({
           id: `${category.id}-${i + 1}`,
           title: text,
-          image: img ? (img.startsWith('http') ? img : `${BASE_URL}${img}`) : '',
+          image: img
+            ? img.startsWith('http')
+              ? img
+              : `${BASE_URL}${img}`
+            : '',
           url: href.startsWith('http') ? href : `${BASE_URL}${href}`,
           description: '',
         });
@@ -165,17 +193,34 @@ async function parseCategoryItems(category) {
   } else {
     productElements.each((i, el) => {
       const $el = $(el);
-      const title = $el.find('.item-title, .product-title, .name, h3, h4, a').first().text().trim();
-      const img = $el.find('img').attr('src') || $el.find('img').attr('data-src') || '';
+      const title = $el
+        .find('.item-title, .product-title, .name, h3, h4, a')
+        .first()
+        .text()
+        .trim();
+      const img =
+        $el.find('img').attr('src') || $el.find('img').attr('data-src') || '';
       const link = $el.find('a').first().attr('href') || '';
-      const desc = $el.find('.description, .preview-text, .text, p').first().text().trim();
+      const desc = $el
+        .find('.description, .preview-text, .text, p')
+        .first()
+        .text()
+        .trim();
 
       if (title) {
         items.push({
           id: `${category.id}-${i + 1}`,
           title,
-          image: img ? (img.startsWith('http') ? img : `${BASE_URL}${img}`) : '',
-          url: link ? (link.startsWith('http') ? link : `${BASE_URL}${link}`) : '',
+          image: img
+            ? img.startsWith('http')
+              ? img
+              : `${BASE_URL}${img}`
+            : '',
+          url: link
+            ? link.startsWith('http')
+              ? link
+              : `${BASE_URL}${link}`
+            : '',
           description: desc,
         });
       }
@@ -192,7 +237,9 @@ async function main() {
   const categories = await parseCategories();
 
   if (categories.length === 0) {
-    console.log('Категории не найдены. Проверьте доступность сайта и селекторы.');
+    console.log(
+      'Категории не найдены. Проверьте доступность сайта и селекторы.',
+    );
     return;
   }
 

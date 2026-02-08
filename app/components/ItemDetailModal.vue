@@ -86,22 +86,22 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  close: []
-}>()
+  close: [];
+}>();
 
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
-    emit('close')
+    emit('close');
   }
 }
 
 onMounted(() => {
-  document.body.style.overflow = 'hidden'
-  window.addEventListener('keydown', onKeydown)
-})
+  document.body.style.overflow = 'hidden';
+  window.addEventListener('keydown', onKeydown);
+});
 
 onUnmounted(() => {
-  document.body.style.overflow = ''
-  window.removeEventListener('keydown', onKeydown)
-})
+  document.body.style.overflow = '';
+  window.removeEventListener('keydown', onKeydown);
+});
 </script>

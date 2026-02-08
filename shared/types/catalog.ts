@@ -1,5 +1,3 @@
-// shared/types/catalog.ts
-
 export interface CatalogItem {
   id: string | number;
   title: string;

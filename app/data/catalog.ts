@@ -1,9 +1,9 @@
 /**
  * Типы данных каталога.
- * 
+ *
  * Приложение загружает catalog.json из папки public/ через fetch().
  * Файл catalog.json формируется парсером (parser/parser.js).
- * 
+ *
  * Если в вашем JSON другая структура — просто поправьте функцию normalizeCatalog() ниже.
  */
 
@@ -37,21 +37,33 @@ export function normalizeCatalog(raw: any[]): CatalogCategory[] {
   return raw.map((cat, index) => {
     // Поддержка разных названий полей
     const title = cat.title || cat.name || cat.label || `Раздел ${index + 1}`;
-    const image = cat.image || cat.img || cat.picture || cat.photo || cat.thumbnail || "";
-    const description = cat.description || cat.desc || cat.text || cat.preview || "";
-    const url = cat.url || cat.link || cat.href || "";
+    const image =
+      cat.image || cat.img || cat.picture || cat.photo || cat.thumbnail || '';
+    const description =
+      cat.description || cat.desc || cat.text || cat.preview || '';
+    const url = cat.url || cat.link || cat.href || '';
     const tags = cat.tags || cat.keywords || extractTags(title, description);
 
     // Нормализация вложенных товаров
-    const rawItems = cat.items || cat.products || cat.children || cat.elements || [];
+    const rawItems =
+      cat.items || cat.products || cat.children || cat.elements || [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const items: CatalogItem[] = Array.isArray(rawItems) ? rawItems.map((item: any, i: number) => ({
-      id: String(item.id || `${index + 1}-${i + 1}`),
-      title: item.title || item.name || item.label || `Товар ${i + 1}`,
-      image: item.image || item.img || item.picture || item.photo || item.thumbnail || "",
-      description: item.description || item.desc || item.text || item.preview || "",
-      url: item.url || item.link || item.href || "",
-    })) : [];
+    const items: CatalogItem[] = Array.isArray(rawItems)
+      ? rawItems.map((item: any, i: number) => ({
+          id: String(item.id || `${index + 1}-${i + 1}`),
+          title: item.title || item.name || item.label || `Товар ${i + 1}`,
+          image:
+            item.image ||
+            item.img ||
+            item.picture ||
+            item.photo ||
+            item.thumbnail ||
+            '',
+          description:
+            item.description || item.desc || item.text || item.preview || '',
+          url: item.url || item.link || item.href || '',
+        }))
+      : [];
 
     return {
       id: cat.id || index + 1,
@@ -72,9 +84,9 @@ export function normalizeCatalog(raw: any[]): CatalogCategory[] {
 function extractTags(title: string, description: string): string[] {
   const text = `${title} ${description}`.toLowerCase();
   const words = text
-    .replace(/[^а-яёa-z\s]/gi, "")
+    .replace(/[^а-яёa-z\s]/gi, '')
     .split(/\s+/)
-    .filter((w) => w.length > 3);
+    .filter(w => w.length > 3);
   // Берём первые 4 уникальных слова длиннее 3 символов
   const unique = [...new Set(words)];
   return unique.slice(0, 4);

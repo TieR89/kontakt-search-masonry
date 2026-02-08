@@ -1,11 +1,8 @@
 <template>
-  <div
-    class="group cursor-pointer h-full"
-    @click="$emit('click')"
-  >
+  <div class="group cursor-pointer h-full" @click="$emit('click')">
     <div
       class="relative w-full h-full rounded-2xl overflow-hidden shadow-sm transition-shadow duration-300 group-hover:shadow-xl"
-      style="backface-visibility: hidden; -webkit-backface-visibility: hidden;"
+      style="backface-visibility: hidden; -webkit-backface-visibility: hidden"
     >
       <img
         v-if="category.image && !imgFailed"
@@ -26,7 +23,14 @@
       <!-- Затемнение -->
       <div
         class="absolute inset-0"
-        style="background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2) 50%, transparent)"
+        style="
+          background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.7),
+            rgba(0, 0, 0, 0.2) 50%,
+            transparent
+          );
+        "
       />
 
       <!-- Рамка при наведении -->
@@ -51,7 +55,10 @@
             v-for="tag in category.tags.slice(0, 3)"
             :key="tag"
             class="px-2 py-0.5 text-white text-xs rounded-full"
-            style="background: rgba(255,255,255,0.2); backdrop-filter: blur(4px)"
+            style="
+              background: rgba(255, 255, 255, 0.2);
+              backdrop-filter: blur(4px);
+            "
           >
             {{ tag }}
           </span>
