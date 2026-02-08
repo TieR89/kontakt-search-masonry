@@ -43,3 +43,9 @@ export interface RawItem {
   children?: RawItem[];
   elements?: RawItem[];
 }
+
+export interface SearchResult {
+  type: 'category' | 'item';
+  category: CatalogCategory;
+  item?: CatalogItem;
+}

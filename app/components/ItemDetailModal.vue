@@ -60,12 +60,13 @@
               :href="item.url"
               target="_blank"
               rel="noopener"
-              class="flex-1 text-center px-4 py-2.5 bg-brand-500 text-white rounded-xl hover:bg-brand-600 transition text-sm font-medium"
+              class="flex-1 text-center px-4 py-2.5 border border-gray-200 bg-white text-gray-800 rounded-xl hover:bg-gray-50 transition text-sm font-medium"
             >
               Подробнее на сайте
             </a>
+
             <button
-              class="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition text-sm"
+              class="flex-1 px-4 py-2.5 border border-gray-200 bg-white text-gray-800 rounded-xl hover:bg-gray-50 transition text-sm"
               @click="$emit('close')"
             >
               Закрыть

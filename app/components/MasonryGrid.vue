@@ -1,28 +1,39 @@
 <template>
   <div ref="containerRef" class="relative w-full" :style="{ height: containerHeight + 'px' }">
     <div
-      v-for="(category, index) in categories"
-      :key="category.id"
+      v-for="(result, index) in results"
+      :key="getKey(result, index)"
       class="absolute transition-all duration-300"
       :style="getStyle(index)"
     >
+      <!-- Карточка категории -->
       <CatalogCard
-        :category="category"
-        @click="$emit('open', category)"
+        v-if="result.type === 'category'"
+        :category="result.category"
+        @click="$emit('open-category', result.category)"
+      />
+
+      <!-- Карточка отдельного товара -->
+      <ItemCard
+        v-else-if="result.type === 'item' && result.item"
+        :item="result.item"
+        :category-title="result.category.title"
+        @click="$emit('open-item', result.item)"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { CatalogCategory } from '~~/shared/types/catalog'
+import type { CatalogCategory, CatalogItem, SearchResult } from '~~/shared/types/catalog'
 
 const props = defineProps<{
-  categories: CatalogCategory[]
+  results: SearchResult[]
 }>()
 
 defineEmits<{
-  open: [category: CatalogCategory]
+  'open-category': [category: CatalogCategory]
+  'open-item': [item: CatalogItem]
 }>()
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -31,13 +42,20 @@ const positions = ref<Array<{ top: number; left: number; width: number; height: 
 
 const GAP = 20
 
-function getCardHeight(category: CatalogCategory): number {
-  const map: Record<string, number> = {
-    sm: 220,
-    md: 300,
-    lg: 400
+function getKey(result: SearchResult, index: number): string {
+  if (result.type === 'category') return `cat-${result.category.id}`
+  if (result.item) return `item-${result.item.id}`
+  return `result-${index}`
+}
+
+function getCardHeight(result: SearchResult, index: number): number {
+  if (result.type === 'category') {
+    const map: Record<string, number> = { sm: 220, md: 300, lg: 400 }
+    return map[result.category.height] || 300
   }
-  return map[category.height] || 300
+  // Товары: чередуем высоту
+  const itemHeights = [200, 260, 320]
+  return itemHeights[index % 3] ?? 260
 }
 
 function getColumnCount(): number {
@@ -66,13 +84,12 @@ function recalculate() {
   const containerWidth = containerRef.value.offsetWidth
   const cols = getColumnCount()
   const colWidth = (containerWidth - GAP * (cols - 1)) / cols
-
   const colHeights = new Array(cols).fill(0)
   const newPositions: Array<{ top: number; left: number; width: number; height: number }> = []
 
-  for (let i = 0; i < props.categories.length; i++) {
-    const category = props.categories[i]
-    if (!category) continue
+  for (let i = 0; i < props.results.length; i++) {
+    const result = props.results[i]
+    if (!result) continue
 
     let shortestCol = 0
     for (let c = 1; c < cols; c++) {
@@ -81,7 +98,7 @@ function recalculate() {
       }
     }
 
-    const cardHeight = getCardHeight(category)
+    const cardHeight = getCardHeight(result, i)
     const top = colHeights[shortestCol]
     const left = shortestCol * (colWidth + GAP)
 
@@ -100,7 +117,7 @@ function onResize() {
   resizeTimer = setTimeout(recalculate, 100)
 }
 
-watch(() => props.categories, () => {
+watch(() => props.results, () => {
   nextTick(recalculate)
 }, { deep: true })
 

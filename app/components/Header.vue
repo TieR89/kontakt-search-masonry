@@ -12,13 +12,6 @@
           <p class="text-xs text-gray-400">9833018.ru</p>
         </div>
       </div>
-
-      <a
-        href="tel:+79833018"
-        class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm"
-      >
-        📞 Позвонить
-      </a>
     </div>
   </header>
 </template>

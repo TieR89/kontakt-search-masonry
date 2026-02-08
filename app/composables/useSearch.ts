@@ -1,7 +1,10 @@
-import type { CatalogCategory } from '~~/shared/types/catalog';
+import type {
+  CatalogCategory,
+  CatalogItem,
+  SearchResult,
+} from '~~/shared/types/catalog';
 import type { Ref } from 'vue';
 
-// Нормализация строки для поиска
 function norm(str: string): string {
   return str
     .toLowerCase()
@@ -11,49 +14,85 @@ function norm(str: string): string {
     .trim();
 }
 
-// Проверка: содержит ли текст ВСЕ слова из запроса
 function matchesQuery(text: string, words: string[]): boolean {
   const normalizedText = norm(text);
   return words.every(word => normalizedText.includes(word));
 }
 
+function itemMatchesWords(item: CatalogItem, words: string[]): boolean {
+  if (matchesQuery(item.title, words)) return true;
+  if (item.description && matchesQuery(item.description, words)) return true;
+  if (matchesQuery(item.tags.join(' '), words)) return true;
+  return false;
+}
+
+function categoryDirectlyMatches(
+  cat: CatalogCategory,
+  words: string[],
+): boolean {
+  if (matchesQuery(cat.title, words)) return true;
+  if (cat.description && matchesQuery(cat.description, words)) return true;
+  if (matchesQuery(cat.tags.join(' '), words)) return true;
+  return false;
+}
+
 export function useSearch(categories: Ref<CatalogCategory[]>) {
   const query = ref('');
 
-  const filtered = computed(() => {
+  // Результаты поиска: категории + отдельные товары
+  const searchResults = computed<SearchResult[]>(() => {
     const raw = query.value.trim();
-    if (!raw) return categories.value;
+    if (!raw) {
+      // Без запроса — показываем все категории
+      return categories.value.map(cat => ({
+        type: 'category' as const,
+        category: cat,
+      }));
+    }
 
-    // Разбиваем запрос на отдельные слова
     const words = norm(raw)
       .split(/\s+/)
       .filter(w => w.length > 0);
 
-    if (words.length === 0) return categories.value;
+    if (words.length === 0) {
+      return categories.value.map(cat => ({
+        type: 'category' as const,
+        category: cat,
+      }));
+    }
 
-    return categories.value.filter((cat: CatalogCategory) => {
-      // Поиск в заголовке категории
-      if (matchesQuery(cat.title, words)) return true;
+    const results: SearchResult[] = [];
+    const addedItemIds = new Set<string | number>();
 
-      // Поиск в описании категории
-      if (cat.description && matchesQuery(cat.description, words)) return true;
+    for (const cat of categories.value) {
+      // Если категория напрямую совпадает — добавляем целиком
+      if (categoryDirectlyMatches(cat, words)) {
+        results.push({ type: 'category', category: cat });
+        // Помечаем все items как добавленные, чтобы не дублировать
+        cat.items.forEach(item => addedItemIds.add(item.id));
+        continue;
+      }
 
-      // Поиск в тегах категории
-      const allTagsText = cat.tags.join(' ');
-      if (matchesQuery(allTagsText, words)) return true;
+      // Иначе ищем совпадения среди товаров внутри категории
+      for (const item of cat.items) {
+        if (!addedItemIds.has(item.id) && itemMatchesWords(item, words)) {
+          results.push({ type: 'item', category: cat, item });
+          addedItemIds.add(item.id);
+        }
+      }
+    }
 
-      // Поиск в товарах внутри категории
-      const inItems = cat.items.some(
-        item =>
-          matchesQuery(item.title, words) ||
-          (item.description && matchesQuery(item.description, words)) ||
-          matchesQuery(item.tags.join(' '), words),
-      );
-      if (inItems) return true;
-
-      return false;
-    });
+    return results;
   });
+
+  // Для обратной совместимости — отфильтрованные категории (без запроса)
+  const filtered = computed<CatalogCategory[]>(() => {
+    return searchResults.value
+      .filter(r => r.type === 'category')
+      .map(r => r.category);
+  });
+
+  const resultCount = computed(() => searchResults.value.length);
 
   const allTags = computed(() => {
     const tagSet = new Set<string>();
@@ -71,7 +110,9 @@ export function useSearch(categories: Ref<CatalogCategory[]>) {
 
   return {
     query,
+    searchResults,
     filtered,
+    resultCount,
     allTags,
     setQuery,
   };

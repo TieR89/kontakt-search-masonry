@@ -5,7 +5,7 @@
     <main class="max-w-7xl mx-auto px-4 pt-6 pb-16">
       <SearchBar
         v-model="query"
-        :result-count="filtered.length"
+        :result-count="resultCount"
         :tags="allTags"
         @tag-click="setQuery"
       />
@@ -29,19 +29,21 @@
       </div>
 
       <!-- Пусто -->
-      <div v-else-if="filtered.length === 0" class="text-center py-20">
+      <div v-else-if="searchResults.length === 0" class="text-center py-20">
         <p class="text-6xl mb-4">🔍</p>
         <p class="text-xl text-gray-500">Ничего не найдено</p>
-        <button
-          class="mt-4 text-blue-500 hover:underline"
-          @click="setQuery('')"
-        >
+        <button class="mt-4 text-blue-500 hover:underline" @click="setQuery('')">
           Сбросить поиск
         </button>
       </div>
 
       <!-- Masonry -->
-      <MasonryGrid v-else :categories="filtered" @open="openCategory" />
+      <MasonryGrid
+        v-else
+        :results="searchResults"
+        @open-category="openCategory"
+        @open-item="openItem"
+      />
     </main>
 
     <!-- Модалка раздела -->
@@ -62,23 +64,23 @@
 </template>
 
 <script setup lang="ts">
-import type { CatalogCategory, CatalogItem } from '~~/shared/types/catalog';
+import type { CatalogCategory, CatalogItem } from '~~/shared/types/catalog'
 
-const { categories, loading, error, fetchCatalog } = useCatalog();
-const { query, filtered, allTags, setQuery } = useSearch(categories);
+const { categories, loading, error, fetchCatalog } = useCatalog()
+const { query, searchResults, resultCount, allTags, setQuery } = useSearch(categories)
 
-const selectedCategory = ref<CatalogCategory | null>(null);
-const selectedItem = ref<CatalogItem | null>(null);
+const selectedCategory = ref<CatalogCategory | null>(null)
+const selectedItem = ref<CatalogItem | null>(null)
 
 function openCategory(category: CatalogCategory) {
-  selectedCategory.value = category;
+  selectedCategory.value = category
 }
 
 function openItem(item: CatalogItem) {
-  selectedItem.value = item;
+  selectedItem.value = item
 }
 
 onMounted(() => {
-  fetchCatalog();
-});
+  fetchCatalog()
+})
 </script>
