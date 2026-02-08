@@ -71,6 +71,9 @@ function recalculate() {
   const newPositions: Array<{ top: number; left: number; width: number; height: number }> = []
 
   for (let i = 0; i < props.categories.length; i++) {
+    const category = props.categories[i]
+    if (!category) continue
+
     let shortestCol = 0
     for (let c = 1; c < cols; c++) {
       if (colHeights[c] < colHeights[shortestCol]) {
@@ -78,7 +81,7 @@ function recalculate() {
       }
     }
 
-    const cardHeight = getCardHeight(props.categories[i])
+    const cardHeight = getCardHeight(category)
     const top = colHeights[shortestCol]
     const left = shortestCol * (colWidth + GAP)
 
